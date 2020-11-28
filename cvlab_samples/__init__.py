@@ -34,17 +34,21 @@ class OpenExampleAction(QAction):
         self.parent().diagram_manager.open_diagram_from_path(self.path)
 
 
-def add_samples(main_window):
-    samples = glob(os.path.dirname(__file__) + "/*.cvlab")
+def add_samples_submenu_callback(main_window, submenu_name, samples_directory):
+    samples = glob(samples_directory + "/*.cvlab")
     samples.sort()
 
-    print("Adding {} sample diagrams to 'Examples' menu".format(len(samples)))
+    print("Adding {} sample diagrams to '{}' submenu".format(len(samples), submenu_name))
 
-    menu = get_menu(main_window, 'Examples/Basics')
+    menu = get_menu(main_window, 'Examples/' + submenu_name)
 
     for sample in samples:
         menu.addAction(OpenExampleAction(main_window, sample))
 
 
-add_plugin_callback(add_samples)
+def add_samples_submenu(submenu_name, samples_directory):
+    callback = lambda main_window: add_samples_submenu_callback(main_window, submenu_name, samples_directory)
+    add_plugin_callback(callback)
 
+
+add_samples_submenu('Basics', os.path.dirname(__file__))
