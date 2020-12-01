@@ -35,13 +35,13 @@ class OpenExampleAction(QAction):
 
 
 def add_samples_submenu_callback(main_window, submenu_name, samples_directory):
-    menu_name = 'Examples'
+    menu_title = 'Examples/'+submenu_name
     samples = glob(samples_directory + "/*.cvlab")
     samples.sort()
 
-    print("Adding {} sample diagrams to '{}/{}' menu".format(len(samples), menu_name, submenu_name))
+    print("Adding {} sample diagrams to '{}'".format(len(samples), menu_title))
 
-    menu = get_menu(main_window, menu_name + '/' + submenu_name)
+    menu = get_menu(main_window, menu_title)
 
     for sample in samples:
         menu.addAction(OpenExampleAction(main_window, sample))
