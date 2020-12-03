@@ -57,6 +57,14 @@ class Parameter(QObject):
         self.set(data)
 
 
+class CommentParameter(Parameter):
+    def __init__(self, id, name=None, value=""):
+        super(CommentParameter, self).__init__(id, name, value)
+
+    def set(self, value):
+        Parameter.set(self, str(value))
+
+
 class PathParameter(Parameter):
     base_path = None
 
