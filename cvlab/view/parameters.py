@@ -59,8 +59,8 @@ class GuiCommentParameter(GuiBaseParameter):
         self.element = element
         self.highlighter = None
 
-        self.label = QLabel(self.parameter.name)
-        self.label.setObjectName("CommentParameterName")
+        # self.label = QLabel(self.parameter.name)
+        # self.label.setObjectName("CommentParameterName")
 
         self.text = QTextEdit()
         self.text.setReadOnly(True)
@@ -72,7 +72,7 @@ class GuiCommentParameter(GuiBaseParameter):
         self.button = QPushButton("Edit comment")
         self.button.setObjectName("CommentParameterButton")
         self.button.clicked.connect(self.edit_comment)
-        self.addWidget(self.label)
+        # self.addWidget(self.label)
         self.addWidget(self.button)
         self.addWidget(self.text)
 
