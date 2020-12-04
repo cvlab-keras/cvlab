@@ -61,21 +61,18 @@ class CommentParameter(Parameter):
 
     status_changed = pyqtSignal()
 
-    def __init__(self, id, name=None, value="", loaded=False):
-        super(CommentParameter, self).__init__(id, name, value, loaded)
-        self.loaded = loaded
+    def __init__(self, id, name=None, value=""):
+        super(CommentParameter, self).__init__(id, name, value)
         self.status_changed.emit()
 
     def set(self, value):
         Parameter.set(self, str(value))
-        self.status_changed.emit()
 
     def to_json(self):
         return self.value
 
     def from_json(self, data):
         self.set(data)
-        self.loaded = True
         self.status_changed.emit()
 
 

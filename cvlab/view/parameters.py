@@ -1,5 +1,4 @@
 from PyQt5 import QtCore
-from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
@@ -16,100 +15,57 @@ class GuiBaseParameter(QHBoxLayout):
         self.base_spacing = 8
 
 
-# class GuiCommentParameter(GuiBaseParameter):
-#     def __init__(self, parameter, element):
-#         super().__init__(parameter)
-#         assert isinstance(parameter, CommentParameter)
-#         self.element = element
-#
-#         self.textedit = QPlainTextEdit()
-#         self.textedit.setPlainText(str(self.parameter.value))
-#         self.textedit.textChanged.connect(self.actualize)
-#         self.layout().addWidget(self.textedit)
-#
-#         self.font = self.textedit.document().defaultFont()
-#         self.font_metrics = QFontMetrics(self.font)
-#         self.line_spacing = self.font_metrics.lineSpacing()
-#         self.change_area_size()
-#
-#         self.parameter.value_changed.connect(self.on_value_changed)
-#
-#     def change_area_size(self):
-#         height = self.textedit.blockCount() * self.line_spacing
-#         self.textedit.setMaximumHeight(height + self.line_spacing)
-#
-#     @pyqtSlot()
-#     def actualize(self):
-#         if self.textedit.toPlainText() != self.parameter.get():
-#             self.parameter.set(str(self.textedit.toPlainText()))
-#             self.change_area_size()
-#
-#     @pyqtSlot()
-#     def on_value_changed(self):
-#         value = self.parameter.get()
-#         if self.textedit.toPlainText() != value:
-#             self.textedit.setPlainText(value)
-#             self.change_area_size()
-
-
 class GuiCommentParameter(GuiBaseParameter):
+
+    class TextEdit(QTextEdit):
+
+        doubleClicked = pyqtSignal()
+
+        def mouseDoubleClickEvent(self, event):
+            self.doubleClicked.emit()
+
     def __init__(self, parameter, element):
         super().__init__(parameter)
         assert isinstance(parameter, CommentParameter)
         self.element = element
-        self.highlighter = None
 
-        # self.label = QLabel(self.parameter.name)
-        # self.label.setObjectName("CommentParameterName")
-
-        self.text = QTextEdit()
+        self.text = self.TextEdit()
         self.text.setReadOnly(True)
-
-
-        # self.text.textChanged.connect(self.actualize_html)
-        self.parameter.status_changed.connect(self.on_status_changed)
-
-        self.button = QPushButton("Edit comment")
-        self.button.setObjectName("CommentParameterButton")
-        self.button.clicked.connect(self.edit_comment)
-        # self.addWidget(self.label)
-        self.addWidget(self.button)
+        self.text.doubleClicked.connect(self.edit_comment)
         self.addWidget(self.text)
 
+        self.parameter.status_changed.connect(self.on_status_changed)
+
         self.wnd = QDialog(self.element)
+        self.wnd_geometry = None
+        self.text_editor = QPlainTextEdit()
+        self.set_window()
+
+    def set_window(self):
         self.wnd.setModal(False)
         self.wnd.setLayout(QVBoxLayout())
-        self.wnd.setObjectName("CodeDialog")
-        # self.wnd.setWindowTitle(parameter.window_title)
+        self.wnd.setObjectName("HtmlDialog")
+        self.wnd.setWindowTitle("Comment writer")
         desktop = QApplication.instance().desktop()
         self.wnd.resize(desktop.screenGeometry(desktop.screenNumber(self.element)).width() // 2,
                         desktop.screenGeometry(desktop.screenNumber(self.element)).height() // 2)
         self.wnd.finished.connect(self.actualize)
-        self.wnd_geometry = None
 
-        # if parameter.window_content:
-        #     self.wnd.layout().addWidget(QLabel(parameter.window_content))
-
-        self.textedit = QPlainTextEdit()
-        self.textedit.setLineWrapMode(self.textedit.NoWrap)
-        self.textedit.setWordWrapMode(QTextOption.NoWrap)
-        # if parameter.live:
-        self.textedit.textChanged.connect(self.actualize)
-        self.wnd.layout().addWidget(self.textedit)
+        self.text_editor.setLineWrapMode(self.text_editor.NoWrap)
+        self.text_editor.setWordWrapMode(QTextOption.NoWrap)
+        self.text_editor.textChanged.connect(self.actualize)
+        self.wnd.layout().addWidget(self.text_editor)
 
         ok_button = QPushButton()
         ok_button.setText("OK")
         ok_button.clicked.connect(self.close_but_press)
         self.wnd.layout().addWidget(ok_button)
 
-        self.actualize_html()
-
     @pyqtSlot()
     def edit_comment(self):
-        self.textedit.setPlainText(self.parameter.get())
-        tab_width = QFontMetrics(self.textedit.font()).width("    ")
-        self.textedit.setTabStopWidth(tab_width)
-        # self.highlighter = Highlighter(self.textedit.document())
+        self.text_editor.setPlainText(self.parameter.get())
+        tab_width = QFontMetrics(self.text_editor.font()).width("    ")
+        self.text_editor.setTabStopWidth(tab_width)
 
         if self.wnd_geometry:
             self.wnd.setGeometry(self.wnd_geometry)
@@ -118,30 +74,20 @@ class GuiCommentParameter(GuiBaseParameter):
 
     @pyqtSlot()
     def actualize(self):
-        self.parameter.set(str(self.textedit.toPlainText()))
-        if self.parameter.loaded:
-            self.actualize_html()
-            self.parameter.loaded = False
+        self.parameter.set(str(self.text_editor.toPlainText()))
 
     @pyqtSlot()
     def on_status_changed(self):
-        # value = self.parameter.get()
-        # if self.textedit.toPlainText() != value:
-        #     self.textedit.setPlainText(value)
-        if self.parameter.loaded:
-            self.actualize_html()
-            self.parameter.loaded = False
-
-    # @pyqtSlot()
-    def actualize_html(self):
-        self.text.setHtml(str(self.textedit.toPlainText()))
-        # self.parameter.set(str(self.textedit.toPlainText()))
+        self.actualize_html()
 
     @pyqtSlot()
     def close_but_press(self):
         self.actualize_html()
         self.wnd_geometry = self.wnd.geometry()
         self.wnd.accept()
+
+    def actualize_html(self):
+        self.text.setHtml(str(self.parameter.get()))
 
 
 class GuiButtonParameter(GuiBaseParameter):
