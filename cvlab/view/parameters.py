@@ -15,6 +15,43 @@ class GuiBaseParameter(QHBoxLayout):
         self.base_spacing = 8
 
 
+class GuiPlainTextParameter(GuiBaseParameter):
+    def __init__(self, parameter, element):
+        super().__init__(parameter)
+        assert isinstance(parameter, PlainTextParameter)
+        self.element = element
+
+        self.textedit = QPlainTextEdit()
+        self.textedit.setReadOnly(self.parameter.readonly)
+        self.textedit.setPlainText(str(self.parameter.value))
+        self.textedit.textChanged.connect(self.actualize)
+        self.layout().addWidget(self.textedit)
+
+        self.font = self.textedit.document().defaultFont()
+        self.font_metrics = QFontMetrics(self.font)
+        self.line_spacing = self.font_metrics.lineSpacing()
+        self.change_area_size()
+
+        self.parameter.value_changed.connect(self.on_value_changed)
+
+    def change_area_size(self):
+        height = self.textedit.blockCount() * self.line_spacing
+        self.textedit.setMaximumHeight(height + self.line_spacing)
+
+    @pyqtSlot()
+    def actualize(self):
+        if self.textedit.toPlainText() != self.parameter.get():
+            self.parameter.set(str(self.textedit.toPlainText()))
+            self.change_area_size()
+
+    @pyqtSlot()
+    def on_value_changed(self):
+        value = self.parameter.get()
+        if self.textedit.toPlainText() != value:
+            self.textedit.setPlainText(value)
+            self.change_area_size()
+
+
 class GuiCommentParameter(GuiBaseParameter):
 
     class TextEdit(QTextEdit):

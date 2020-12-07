@@ -116,6 +116,8 @@ Drag & drop - move element around"""
                 layout.addLayout(GuiTextParameter(param, self))
             elif isinstance(param, CommentParameter):
                 layout.addLayout(GuiCommentParameter(param, self))
+            elif isinstance(param, PlainTextParameter):
+                layout.addLayout(GuiPlainTextParameter(param, self))
 
     def create_inputs(self, layout):
         layout.base_contents_margins = [0,3,0,3]
