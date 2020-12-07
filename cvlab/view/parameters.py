@@ -11,7 +11,7 @@ class GuiBaseParameter(QHBoxLayout):
     def __init__(self, parameter):
         super().__init__()
         self.parameter = parameter
-        self.setContentsMargins(0,0,0,0)
+        self.setContentsMargins(0, 0, 0, 0)
         self.base_spacing = 8
 
 
@@ -40,6 +40,7 @@ class GuiCommentParameter(GuiBaseParameter):
         self.wnd_geometry = None
         self.text_editor = QPlainTextEdit()
         self.set_window()
+        self.actualize_html()
 
     def set_window(self):
         self.wnd.setModal(False)
@@ -49,15 +50,12 @@ class GuiCommentParameter(GuiBaseParameter):
         desktop = QApplication.instance().desktop()
         self.wnd.resize(desktop.screenGeometry(desktop.screenNumber(self.element)).width() // 2,
                         desktop.screenGeometry(desktop.screenNumber(self.element)).height() // 2)
-        self.wnd.finished.connect(self.actualize)
-
         self.text_editor.setLineWrapMode(self.text_editor.NoWrap)
         self.text_editor.setWordWrapMode(QTextOption.NoWrap)
-        self.text_editor.textChanged.connect(self.actualize)
         self.wnd.layout().addWidget(self.text_editor)
 
         ok_button = QPushButton()
-        ok_button.setText("OK")
+        ok_button.setText("SAVE")
         ok_button.clicked.connect(self.close_but_press)
         self.wnd.layout().addWidget(ok_button)
 
@@ -73,18 +71,18 @@ class GuiCommentParameter(GuiBaseParameter):
         self.wnd.show()
 
     @pyqtSlot()
-    def actualize(self):
-        self.parameter.set(str(self.text_editor.toPlainText()))
-
-    @pyqtSlot()
     def on_status_changed(self):
         self.actualize_html()
 
     @pyqtSlot()
     def close_but_press(self):
+        self.actualize()
         self.actualize_html()
         self.wnd_geometry = self.wnd.geometry()
         self.wnd.accept()
+
+    def actualize(self):
+        self.parameter.set(str(self.text_editor.toPlainText()))
 
     def actualize_html(self):
         self.text.setHtml(str(self.parameter.get()))

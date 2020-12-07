@@ -7,7 +7,7 @@ class TextComment(NormalElement):
               'Editor supports text formatting with HTML tags'
 
     def get_attributes(self):
-        return [], [], [CommentParameter(id="editor", value="")]
+        return [], [], [CommentParameter(id="editor", value="Double click to edit...")]
 
 
-register_elements_auto(__name__, locals(), "Diagram helpers", 30)
+register_elements_auto(__name__, locals(), "Diagram utils", 30)
