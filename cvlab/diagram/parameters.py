@@ -67,27 +67,7 @@ class CommentParameter(Parameter):
 
     def set(self, value):
         Parameter.set(self, str(value))
-
-    def to_json(self):
-        return self.value
-
-    def from_json(self, data):
-        self.set(data)
         self.status_changed.emit()
-
-
-class PlainTextParameter(Parameter):
-
-    status_changed = pyqtSignal()
-    readonly_changed = pyqtSignal()
-
-    def __init__(self, id, name=None, value="", readonly=True):
-        super(PlainTextParameter, self).__init__(id, name, value)
-        self.status_changed.emit()
-        self.readonly = readonly
-
-    def set(self, value):
-        Parameter.set(self, str(value))
 
     def to_json(self):
         return self.value
